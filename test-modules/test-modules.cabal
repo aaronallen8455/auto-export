@@ -1,0 +1,18 @@
+cabal-version:      3.0
+name:               test-modules
+version:            0.1.0.0
+extra-source-files:
+  *.input
+  *.expected
+
+common attrs
+    ghc-options: -fplugin AutoExport
+    build-depends:    base,
+                      auto-export
+    hs-source-dirs:   .
+    default-language: GHC2021
+    default-extensions: LambdaCase
+
+executable Case1
+    import: attrs
+    main-is: Case1.hs

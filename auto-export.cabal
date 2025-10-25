@@ -1,0 +1,54 @@
+cabal-version:      3.0
+name:               auto-export
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Aaron Allen
+maintainer:         aaronallen8455@gmail.com
+-- copyright:
+category:           Development
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    exposed-modules:  AutoExport
+                      AutoExport.GhcFacade
+    -- other-modules:
+    default-extensions: LambdaCase
+    build-depends:    base,
+                      ghc,
+                      bytestring,
+                      mtl,
+                      ghc-exactprint,
+                      ghc-paths,
+                      containers
+    hs-source-dirs:   src
+    default-language: GHC2021
+
+test-suite auto-export-test
+    import:           warnings
+    default-language: GHC2021
+    -- other-modules:
+    -- other-extensions:
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          Main.hs
+    build-depends:
+        base ^>=4.21.0.0,
+        auto-export
+
+executable play
+  main-is: Main.hs
+  hs-source-dirs: play
+  default-language: GHC2021
+  build-depends:
+      base ^>=4.21.0.0,
+      auto-export
+  ghc-options: -fplugin AutoExport
