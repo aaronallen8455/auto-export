@@ -1,0 +1,17 @@
+module Var3
+  ( foo
+  , T
+  , test4, test, test2, test3
+  ) where
+
+test = ()
+
+test2 = ()
+
+test3 = ()
+
+test4 = ()
+
+foo = ()
+
+type T = ()

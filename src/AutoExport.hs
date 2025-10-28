@@ -144,7 +144,7 @@ addExports [] lies = lies
 addExports newIEs lies = liesWithComma ++ newIEsWithCommas
   where
     existingNames = Set.fromList $ Ghc.ieName . Ghc.unLoc <$> lies
-    iesToAdd = filter ((`Set.member` existingNames) . Ghc.ieName) newIEs
+    iesToAdd = filter ((`Set.notMember` existingNames) . Ghc.ieName) newIEs
     addComma (Ghc.L l ie) = Ghc.L (EP.addComma l) ie
     liesWithComma = case reverse lies of
       l : ls -> reverse $ addComma l : ls
@@ -170,6 +170,8 @@ mkIE = \case
             Ghc.FamDecl _ fd -> Ghc.fdLName fd
             t -> Ghc.tcdLName t
        in case tyCl of
+            _ | Ghc.isTypeFamilyDecl tyCl -> [mkThingAbsIE (Ghc.unLoc $ getTyName tyCl)]
+            Ghc.FamDecl{} -> [mkThingAbsIE (Ghc.unLoc $ getTyName tyCl)]
             Ghc.SynDecl{} -> [mkThingAbsIE (Ghc.unLoc $ getTyName tyCl)]
             _ ->
               [Ghc.IEThingAll

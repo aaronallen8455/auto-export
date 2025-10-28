@@ -1,0 +1,6 @@
+{-# LANGUAGE PatternSynonyms #-}
+module Pat2
+  ( pattern P
+  ) where
+
+pattern P = ()

@@ -1,0 +1,6 @@
+module Data2
+  (
+  ) where
+
+!EXPORT
+newtype T = T ()

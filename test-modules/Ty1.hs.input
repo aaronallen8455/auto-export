@@ -1,0 +1,6 @@
+module Ty1
+  (
+  ) where
+
+!EXPORT
+type S = ()

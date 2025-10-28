@@ -1,0 +1,3 @@
+module Var4 where
+
+test = ()

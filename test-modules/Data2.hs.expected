@@ -1,0 +1,5 @@
+module Data2
+  ( T(..)
+  ) where
+
+newtype T = T ()

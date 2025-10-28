@@ -1,0 +1,8 @@
+{-# LANGUAGE TypeFamilies #-}
+module Ty2
+  (
+  ) where
+
+!EXPORT
+type family S a where
+  S a = a

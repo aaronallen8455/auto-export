@@ -1,0 +1,4 @@
+module Var4 where
+
+!EXPORT
+test = ()

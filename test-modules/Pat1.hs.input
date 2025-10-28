@@ -1,0 +1,8 @@
+{-# LANGUAGE PatternSynonyms #-}
+module Pat1
+  (
+  ) where
+
+!EXPORT
+pattern P :: ()
+pattern P = ()

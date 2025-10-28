@@ -1,0 +1,5 @@
+module Ty1
+  ( S
+  ) where
+
+type S = ()

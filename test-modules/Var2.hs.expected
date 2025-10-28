@@ -1,0 +1,5 @@
+module Var2
+  ( test
+  ) where
+
+test = ()

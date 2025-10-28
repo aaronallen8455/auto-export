@@ -13,6 +13,50 @@ common attrs
     default-language: GHC2021
     default-extensions: LambdaCase
 
-executable Case1
+executable Class1
     import: attrs
-    main-is: Case1.hs
+    main-is: Class1.hs
+
+executable Data1
+    import: attrs
+    main-is: Data1.hs
+
+executable Data2
+    import: attrs
+    main-is: Data2.hs
+
+executable KindSig1
+    import: attrs
+    main-is: KindSig1.hs
+
+executable Pat1
+    import: attrs
+    main-is: Pat1.hs
+
+executable Pat2
+    import: attrs
+    main-is: Pat2.hs
+
+executable Ty1
+    import: attrs
+    main-is: Ty1.hs
+
+executable Ty2
+    import: attrs
+    main-is: Ty2.hs
+
+executable Var1
+    import: attrs
+    main-is: Var1.hs
+
+executable Var2
+    import: attrs
+    main-is: Var2.hs
+
+executable Var3
+    import: attrs
+    main-is: Var3.hs
+
+executable Var4
+    import: attrs
+    main-is: Var4.hs

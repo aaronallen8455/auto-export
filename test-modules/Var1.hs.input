@@ -1,0 +1,7 @@
+module Var1
+  (
+  ) where
+
+!EXPORT
+test :: ()
+test = ()

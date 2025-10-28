@@ -1,0 +1,7 @@
+{-# LANGUAGE PatternSynonyms #-}
+module Pat2
+  (
+  ) where
+
+!EXPORT
+pattern P = ()

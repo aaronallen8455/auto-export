@@ -40,15 +40,20 @@ test-suite auto-export-test
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Main.hs
+    ghc-options: -threaded -rtsopts -with-rtsopts=-N
     build-depends:
-        base ^>=4.21.0.0,
-        auto-export
+        base <5,
+        process,
+        directory,
+        tasty,
+        tasty-hunit,
+        ghc
 
-executable play
-  main-is: Main.hs
-  hs-source-dirs: play
-  default-language: GHC2021
-  build-depends:
-      base ^>=4.21.0.0,
-      auto-export
-  ghc-options: -fplugin AutoExport
+-- executable play
+--   main-is: Main.hs
+--   hs-source-dirs: play
+--   default-language: GHC2021
+--   build-depends:
+--       base ^>=4.21.0.0,
+--       auto-export
+--   ghc-options: -fplugin AutoExport

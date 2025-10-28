@@ -1,0 +1,7 @@
+module Class1
+  (
+  ) where
+
+!EXPORT
+class C a where
+  c :: a -> a

@@ -1,0 +1,9 @@
+{-# LANGUAGE TypeFamilies #-}
+module KindSig1
+  (
+  ) where
+
+!EXPORT
+type F :: a -> a
+type family F a where
+  F a = a

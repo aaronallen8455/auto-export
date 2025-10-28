@@ -1,0 +1,22 @@
+module Var3
+  ( foo
+  , T
+  , test4
+  ) where
+
+!EXPORT       
+test = ()
+
+    !EXPORT       
+test2 = ()
+
+    !EXPORT
+test3 = ()
+
+!EXPORT
+test4 = ()
+
+foo = ()
+
+!EXPORT
+type T = ()

@@ -1,0 +1,8 @@
+{-# LANGUAGE TypeFamilies #-}
+module KindSig1
+  ( F
+  ) where
+
+type F :: a -> a
+type family F a where
+  F a = a

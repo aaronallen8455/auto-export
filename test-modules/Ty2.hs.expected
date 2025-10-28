@@ -1,0 +1,7 @@
+{-# LANGUAGE TypeFamilies #-}
+module Ty2
+  ( S
+  ) where
+
+type family S a where
+  S a = a
