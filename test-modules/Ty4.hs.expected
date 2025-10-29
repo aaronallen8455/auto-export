@@ -1,0 +1,5 @@
+module Ty4
+  ( type (.#)
+  ) where
+
+type a .# b = a + b

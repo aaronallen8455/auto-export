@@ -25,6 +25,10 @@ executable Data2
     import: attrs
     main-is: Data2.hs
 
+executable Data3
+    import: attrs
+    main-is: Data3.hs
+
 executable KindSig1
     import: attrs
     main-is: KindSig1.hs
@@ -45,6 +49,14 @@ executable Ty2
     import: attrs
     main-is: Ty2.hs
 
+executable Ty3
+    import: attrs
+    main-is: Ty3.hs
+
+executable Ty4
+    import: attrs
+    main-is: Ty4.hs
+
 executable Var1
     import: attrs
     main-is: Var1.hs
@@ -60,3 +72,7 @@ executable Var3
 executable Var4
     import: attrs
     main-is: Var4.hs
+
+executable Var5
+    import: attrs
+    main-is: Var5.hs

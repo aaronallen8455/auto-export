@@ -1,0 +1,5 @@
+module Ty3
+  ( type (.#)
+  ) where
+
+type (.#) = (+)

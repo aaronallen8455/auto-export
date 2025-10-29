@@ -1,0 +1,4 @@
+module Var6 () where
+
+!EXPORT
+a # b = a + b

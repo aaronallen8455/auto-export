@@ -1,0 +1,3 @@
+module Var5 ( (#)) where
+
+(#) = (+)

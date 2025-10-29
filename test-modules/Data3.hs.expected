@@ -1,0 +1,5 @@
+module Data3
+  ( type (:+:)(..)
+  ) where
+
+data a :+: b = T

@@ -1,0 +1,4 @@
+module Var5 () where
+
+!EXPORT
+(#) = (+)

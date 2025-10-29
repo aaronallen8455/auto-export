@@ -1,0 +1,6 @@
+module Ty3
+  (
+  ) where
+
+!EXPORT
+type (.#) = (+)

@@ -8,9 +8,10 @@ module AutoExport
 import           Control.Exception
 import           Control.Monad.IO.Class (liftIO)
 import qualified Control.Monad.Writer.CPS as W
-import qualified Data.ByteString as BS
+import qualified Data.ByteString as BS hiding (uncons)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Internal as BS
+import qualified Data.Char as Char
 import           Data.Maybe
 import           Data.Monoid
 import qualified Data.Set as Set
@@ -175,10 +176,23 @@ mkIE = \case
             Ghc.SynDecl{} -> [mkThingAbsIE (Ghc.unLoc $ getTyName tyCl)]
             _ ->
               [Ghc.IEThingAll
+#if MIN_VERSION_ghc(9,12,0)
                 (Nothing, (Ghc.EpTok EP.d0, Ghc.EpTok EP.d0, Ghc.EpTok EP.d0))
+#else
+                (Nothing, [ Ghc.AddEpAnn Ghc.AnnOpenP EP.d0
+                          , Ghc.AddEpAnn Ghc.AnnDotdot EP.d0
+                          , Ghc.AddEpAnn Ghc.AnnCloseP EP.d0
+                          ]
+                )
+#endif
                 (Ghc.L Ghc.noSrcSpanA
-                  (Ghc.IEType Ghc.NoEpTok
-                    (Ghc.L EP.noAnnSrcSpanDP0 . Ghc.unLoc $ getTyName tyCl)
+                  (case Ghc.unLoc $ getTyName tyCl of
+                     n | isOperator n ->
+                      Ghc.IEType (Ghc.EpTok EP.d0)
+                        (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 n)
+                     n ->
+                      Ghc.IEName Ghc.noExtField
+                        (addOpParens $ Ghc.L EP.noAnnSrcSpanDP0 n)
                   )
                 )
                 Nothing
@@ -196,25 +210,57 @@ mkIE = \case
     mkVarIE name =
       Ghc.IEVar
         Ghc.noAnn
-        (Ghc.L Ghc.noSrcSpanA (Ghc.IEName Ghc.noExtField $ Ghc.L EP.noAnnSrcSpanDP0 name))
+        (Ghc.L Ghc.noSrcSpanA
+          (Ghc.IEName Ghc.noExtField . addOpParens $ Ghc.L EP.noAnnSrcSpanDP0 name)
+        )
         Nothing
+    mkPatternIE :: Ghc.RdrName -> Ghc.IE Ghc.GhcPs
     mkPatternIE name =
       Ghc.IEThingAbs Ghc.noAnn
         (Ghc.L Ghc.noSrcSpanA
           (Ghc.IEPattern
+#if MIN_VERSION_ghc(9,12,0)
             (Ghc.EpTok EP.d0)
-            (Ghc.L EP.noAnnSrcSpanDP1 name)
+#else
+            EP.d0
+#endif
+            (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 name)
           )
         )
         Nothing
     mkThingAbsIE name =
       Ghc.IEThingAbs Ghc.noAnn
         (Ghc.L Ghc.noSrcSpanA
-          (Ghc.IEName Ghc.noExtField
-            (Ghc.L EP.noAnnSrcSpanDP0 name)
+          (if isOperator name
+           then
+            Ghc.IEType (Ghc.EpTok EP.d0)
+            (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 name)
+           else
+            Ghc.IEName Ghc.noExtField
+            (addOpParens $ Ghc.L EP.noAnnSrcSpanDP0 name)
           )
         )
         Nothing
+    -- Adds parens for operators
+    addOpParens :: Ghc.LIdP Ghc.GhcPs -> Ghc.LIdP Ghc.GhcPs
+    addOpParens (Ghc.L loc name)
+      | isOperator name =
+          Ghc.L
+            (loc { Ghc.anns = Ghc.NameAnn
+                    { Ghc.nann_adornment = Ghc.NameParens (Ghc.EpTok EP.d0) (Ghc.EpTok EP.d0)
+                    , Ghc.nann_name = EP.d0
+                    , Ghc.nann_trailing = []
+                    }
+                 })
+            name
+      | otherwise = Ghc.L loc name
+
+isOperator :: Ghc.RdrName -> Bool
+isOperator name =
+  case BS.uncons (Ghc.bytesFS $ rdrNameFS name) of
+    Nothing -> False
+    Just (c, _) ->
+      c /= '_' && not (Char.isAlpha c)
 
 -- | Parse the given module file. Accounts for CPP comments
 parseModule

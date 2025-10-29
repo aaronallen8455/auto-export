@@ -1,0 +1,6 @@
+module Data3
+  (
+  ) where
+
+!EXPORT
+data a :+: b = T

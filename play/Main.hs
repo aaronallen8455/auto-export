@@ -1,6 +1,6 @@
 {-# LANGUAGE PatternSynonyms #-}
 module Main
-  ( main, pattern P
+  ( main, (#)
   ) where
 
 main :: IO ()
@@ -11,4 +11,4 @@ test = 1
 
 data Foo = Foo
 
-pattern P = ()
+a # b = a + b
