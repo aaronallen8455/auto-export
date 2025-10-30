@@ -175,20 +175,11 @@ mkIE = \case
             Ghc.FamDecl{} -> [mkThingAbsIE (Ghc.unLoc $ getTyName tyCl)]
             Ghc.SynDecl{} -> [mkThingAbsIE (Ghc.unLoc $ getTyName tyCl)]
             _ ->
-              [Ghc.IEThingAll
-#if MIN_VERSION_ghc(9,12,0)
-                (Nothing, (Ghc.EpTok EP.d0, Ghc.EpTok EP.d0, Ghc.EpTok EP.d0))
-#else
-                (Nothing, [ Ghc.AddEpAnn Ghc.AnnOpenP EP.d0
-                          , Ghc.AddEpAnn Ghc.AnnDotdot EP.d0
-                          , Ghc.AddEpAnn Ghc.AnnCloseP EP.d0
-                          ]
-                )
-#endif
+              [Ghc.IEThingAll Ghc.ieThingAllAnn
                 (Ghc.L Ghc.noSrcSpanA
                   (case Ghc.unLoc $ getTyName tyCl of
                      n | isOperator n ->
-                      Ghc.IEType (Ghc.EpTok EP.d0)
+                      Ghc.IEType Ghc.ieTypeAnn
                         (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 n)
                      n ->
                       Ghc.IEName Ghc.noExtField
@@ -218,26 +209,23 @@ mkIE = \case
     mkPatternIE name =
       Ghc.IEThingAbs Ghc.noAnn
         (Ghc.L Ghc.noSrcSpanA
-          (Ghc.IEPattern
-#if MIN_VERSION_ghc(9,12,0)
-            (Ghc.EpTok EP.d0)
-#else
-            EP.d0
-#endif
+          (Ghc.IEPattern Ghc.iePatternAnn
             (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 name)
           )
         )
         Nothing
+    mkThingAbsIE :: Ghc.RdrName -> Ghc.IE Ghc.GhcPs
     mkThingAbsIE name =
       Ghc.IEThingAbs Ghc.noAnn
         (Ghc.L Ghc.noSrcSpanA
           (if isOperator name
            then
-            Ghc.IEType (Ghc.EpTok EP.d0)
-            (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 name)
+            Ghc.IEType Ghc.ieTypeAnn
+              (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 name)
            else
-            Ghc.IEName Ghc.noExtField
-            (addOpParens $ Ghc.L EP.noAnnSrcSpanDP0 name)
+            Ghc.IEName
+              Ghc.noExtField
+              (addOpParens $ Ghc.L EP.noAnnSrcSpanDP0 name)
           )
         )
         Nothing
@@ -246,12 +234,7 @@ mkIE = \case
     addOpParens (Ghc.L loc name)
       | isOperator name =
           Ghc.L
-            (loc { Ghc.anns = Ghc.NameAnn
-                    { Ghc.nann_adornment = Ghc.NameParens (Ghc.EpTok EP.d0) (Ghc.EpTok EP.d0)
-                    , Ghc.nann_name = EP.d0
-                    , Ghc.nann_trailing = []
-                    }
-                 })
+            (loc { Ghc.anns = Ghc.nameAnnParens })
             name
       | otherwise = Ghc.L loc name
 
@@ -303,21 +286,3 @@ prepareSourceForParsing
 prepareSourceForParsing filePath = do
   content <- BS.readFile filePath
   BS.writeFile filePath (removeExportCmds content)
-
--- Rewrite EXPORT to
--- {-# ANN EXPORT () #-}
--- Find next decl after an export ann and generate an export entry based on
--- what sort of thing it is:
--- - val
--- - class
--- - data
--- - type
--- - patternSyn
--- - data family instance
---
--- One complication is that classes can have associated data fams, in which case
--- how should exporting it work?
--- - Can have EXPORT only apply to top level definitions and if you want to export
---   a child, use EXPORT(Ty)
---
--- No-op if already exported. Add warning?

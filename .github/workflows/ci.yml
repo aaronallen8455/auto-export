@@ -13,6 +13,7 @@ jobs:
         os: [ubuntu-latest]
         ghc:
           - "9.12.2"
+          - "9.10.3"
 
     steps:
     - uses: actions/checkout@v3
