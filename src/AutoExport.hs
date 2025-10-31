@@ -150,7 +150,7 @@ addExports newIEs lies = liesWithComma ++ newIEsWithCommas
     liesWithComma = case reverse lies of
       l : ls -> reverse $ addComma l : ls
       [] -> []
-    newIEsWithCommas = case reverse (Ghc.L EP.noAnnSrcSpanDP1 <$> iesToAdd) of
+    newIEsWithCommas = case reverse (Ghc.L Ghc.anchorD1 <$> iesToAdd) of
       l : ls -> reverse $ l : (addComma <$> ls)
       [] -> []
 
@@ -180,13 +180,15 @@ mkIE = \case
                   (case Ghc.unLoc $ getTyName tyCl of
                      n | isOperator n ->
                       Ghc.IEType Ghc.ieTypeAnn
-                        (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 n)
+                        (addOpParens $ Ghc.L Ghc.anchorD1 n)
                      n ->
                       Ghc.IEName Ghc.noExtField
-                        (addOpParens $ Ghc.L EP.noAnnSrcSpanDP0 n)
+                        (addOpParens $ Ghc.L Ghc.anchorD0 n)
                   )
                 )
+#if MIN_VERSION_ghc(9,10,0)
                 Nothing
+#endif
               ]
     Ghc.ValD _ (Ghc.FunBind _ (Ghc.L _ name) _) -> [mkVarIE name]
     Ghc.ValD _ (Ghc.PatSynBind _ psb) -> [mkPatternIE (Ghc.unLoc $ Ghc.psb_id psb)]
@@ -198,43 +200,44 @@ mkIE = \case
     Ghc.ForD _ for -> [mkVarIE . Ghc.unLoc $ Ghc.fd_name for]
     _ -> []
   where
-    mkVarIE name =
-      Ghc.IEVar
-        Ghc.noAnn
-        (Ghc.L Ghc.noSrcSpanA
-          (Ghc.IEName Ghc.noExtField . addOpParens $ Ghc.L EP.noAnnSrcSpanDP0 name)
-        )
-        Nothing
+    mkVarIE :: Ghc.RdrName -> Ghc.IE Ghc.GhcPs
+    mkVarIE name = Ghc.ieVar
+      (Ghc.L Ghc.noSrcSpanA
+        (Ghc.IEName Ghc.noExtField . addOpParens $ Ghc.L Ghc.anchorD0 name)
+      )
     mkPatternIE :: Ghc.RdrName -> Ghc.IE Ghc.GhcPs
-    mkPatternIE name =
-      Ghc.IEThingAbs Ghc.noAnn
-        (Ghc.L Ghc.noSrcSpanA
-          (Ghc.IEPattern Ghc.iePatternAnn
-            (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 name)
-          )
+    mkPatternIE name = Ghc.ieThingAbs
+      (Ghc.L Ghc.noSrcSpanA
+        (Ghc.IEPattern Ghc.iePatternAnn
+          (addOpParens $ Ghc.L Ghc.anchorD1 name)
         )
-        Nothing
+      )
     mkThingAbsIE :: Ghc.RdrName -> Ghc.IE Ghc.GhcPs
-    mkThingAbsIE name =
-      Ghc.IEThingAbs Ghc.noAnn
+    mkThingAbsIE name = Ghc.ieThingAbs
         (Ghc.L Ghc.noSrcSpanA
           (if isOperator name
            then
             Ghc.IEType Ghc.ieTypeAnn
-              (addOpParens $ Ghc.L EP.noAnnSrcSpanDP1 name)
+              (addOpParens $ Ghc.L Ghc.anchorD1 name)
            else
             Ghc.IEName
               Ghc.noExtField
-              (addOpParens $ Ghc.L EP.noAnnSrcSpanDP0 name)
+              (addOpParens $ Ghc.L Ghc.anchorD0 name)
           )
         )
-        Nothing
     -- Adds parens for operators
     addOpParens :: Ghc.LIdP Ghc.GhcPs -> Ghc.LIdP Ghc.GhcPs
     addOpParens (Ghc.L loc name)
       | isOperator name =
           Ghc.L
+#if MIN_VERSION_ghc(9,10,0)
             (loc { Ghc.anns = Ghc.nameAnnParens })
+#else
+            (loc { Ghc.ann = case Ghc.ann loc of
+                     Ghc.EpAnnNotUsed -> Ghc.noAnn -- doesn't happen
+                     a -> a { Ghc.anns = Ghc.nameAnnParens }
+                 })
+#endif
             name
       | otherwise = Ghc.L loc name
 

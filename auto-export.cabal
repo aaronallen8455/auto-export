@@ -11,7 +11,8 @@ maintainer:         aaronallen8455@gmail.com
 category:           Development
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md
--- extra-source-files:
+                    README.md
+tested-with: GHC == 9.12.1, GHC == 9.10.1, GHC == 9.8.1, GHC == 9.6.1
 
 common warnings
     ghc-options: -Wall
@@ -23,8 +24,8 @@ library
     -- other-modules:
     default-extensions: LambdaCase
     build-depends:    base,
-                      ghc,
-                      bytestring,
+                      ghc >= 9.6 && < 9.13,
+                      bytestring < 0.13,
                       mtl,
                       ghc-exactprint,
                       ghc-paths,
@@ -48,12 +49,3 @@ test-suite auto-export-test
         tasty,
         tasty-hunit,
         ghc
-
--- executable play
---   main-is: Main.hs
---   hs-source-dirs: play
---   default-language: GHC2021
---   build-depends:
---       base ^>=4.21.0.0,
---       auto-export
---   ghc-options: -fplugin AutoExport
