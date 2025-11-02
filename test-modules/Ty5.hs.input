@@ -1,0 +1,6 @@
+module Ty5
+  (
+  ) where
+
+!EXPORT
+type data T = A

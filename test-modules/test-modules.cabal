@@ -57,6 +57,10 @@ executable Ty4
     import: attrs
     main-is: Ty4.hs
 
+executable Ty5
+    import: attrs
+    main-is: Ty5.hs
+
 executable Var1
     import: attrs
     main-is: Var1.hs

@@ -178,7 +178,7 @@ mkIE = \case
               [Ghc.IEThingAll Ghc.ieThingAllAnn
                 (Ghc.L Ghc.noSrcSpanA
                   (case Ghc.unLoc $ getTyName tyCl of
-                     n | isOperator n ->
+                     n | isOperator n || isTypeData tyCl ->
                       Ghc.IEType Ghc.ieTypeAnn
                         (addOpParens $ Ghc.L Ghc.anchorD1 n)
                      n ->
@@ -240,6 +240,11 @@ mkIE = \case
 #endif
             name
       | otherwise = Ghc.L loc name
+
+    isTypeData = \case
+      Ghc.DataDecl { Ghc.tcdDataDefn = defn } ->
+        Ghc.isTypeDataDefnCons $ Ghc.dd_cons defn
+      _ -> False
 
 isOperator :: Ghc.RdrName -> Bool
 isOperator name =

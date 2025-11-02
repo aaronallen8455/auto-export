@@ -1,0 +1,5 @@
+module Ty5
+  ( type T(..)
+  ) where
+
+type data T = A
