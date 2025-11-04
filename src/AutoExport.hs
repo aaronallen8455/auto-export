@@ -167,29 +167,12 @@ getExports _ = []
 mkIE :: Ghc.HsDecl Ghc.GhcPs -> [Ghc.IE Ghc.GhcPs]
 mkIE = \case
     Ghc.TyClD _ tyCl ->
-      let getTyName = \case
-            Ghc.FamDecl _ fd -> Ghc.fdLName fd
-            t -> Ghc.tcdLName t
+      let getTyName = Ghc.unLoc . Ghc.tyClDeclLName
        in case tyCl of
-            _ | Ghc.isTypeFamilyDecl tyCl -> [mkThingAbsIE (Ghc.unLoc $ getTyName tyCl)]
-            Ghc.FamDecl{} -> [mkThingAbsIE (Ghc.unLoc $ getTyName tyCl)]
-            Ghc.SynDecl{} -> [mkThingAbsIE (Ghc.unLoc $ getTyName tyCl)]
-            _ ->
-              [Ghc.IEThingAll Ghc.ieThingAllAnn
-                (Ghc.L Ghc.noSrcSpanA
-                  (case Ghc.unLoc $ getTyName tyCl of
-                     n | isOperator n || isTypeData tyCl ->
-                      Ghc.IEType Ghc.ieTypeAnn
-                        (addOpParens $ Ghc.L Ghc.anchorD1 n)
-                     n ->
-                      Ghc.IEName Ghc.noExtField
-                        (addOpParens $ Ghc.L Ghc.anchorD0 n)
-                  )
-                )
-#if MIN_VERSION_ghc(9,10,0)
-                Nothing
-#endif
-              ]
+            _ | Ghc.isTypeFamilyDecl tyCl -> [mkThingAbsIE (getTyName tyCl)]
+            _ | Ghc.isDataFamilyDecl tyCl -> [mkThingAllIE False (getTyName tyCl)]
+            Ghc.SynDecl{} -> [mkThingAbsIE (getTyName tyCl)]
+            _ -> [mkThingAllIE (isTypeData tyCl) (getTyName tyCl)]
     Ghc.ValD _ (Ghc.FunBind _ (Ghc.L _ name) _) -> [mkVarIE name]
     Ghc.ValD _ (Ghc.PatSynBind _ psb) -> [mkPatternIE (Ghc.unLoc $ Ghc.psb_id psb)]
     Ghc.SigD _ sig -> case sig of
@@ -198,8 +181,26 @@ mkIE = \case
       _ -> []
     Ghc.KindSigD _ (Ghc.StandaloneKindSig _ (Ghc.L _ name) _) -> [mkThingAbsIE name]
     Ghc.ForD _ for -> [mkVarIE . Ghc.unLoc $ Ghc.fd_name for]
+    Ghc.InstD _ Ghc.DataFamInstD{Ghc.dfid_inst = inst} ->
+      [mkThingAllIE False . Ghc.unLoc . Ghc.feqn_tycon $ Ghc.dfid_eqn inst]
     _ -> []
   where
+    mkThingAllIE :: Bool -> Ghc.RdrName -> Ghc.IE Ghc.GhcPs
+    mkThingAllIE isTyData name =
+      Ghc.IEThingAll Ghc.ieThingAllAnn
+        (Ghc.L Ghc.noSrcSpanA
+          (if isOperator name || isTyData
+           then
+              Ghc.IEType Ghc.ieTypeAnn
+                (addOpParens $ Ghc.L Ghc.anchorD1 name)
+           else
+              Ghc.IEName Ghc.noExtField
+                (addOpParens $ Ghc.L Ghc.anchorD0 name)
+          )
+        )
+#if MIN_VERSION_ghc(9,10,0)
+        Nothing
+#endif
     mkVarIE :: Ghc.RdrName -> Ghc.IE Ghc.GhcPs
     mkVarIE name = Ghc.ieVar
       (Ghc.L Ghc.noSrcSpanA

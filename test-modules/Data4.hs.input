@@ -1,0 +1,7 @@
+module Data4
+  (
+  ) where
+
+!EXPORT
+data instance F a where
+  D :: () -> F Bool

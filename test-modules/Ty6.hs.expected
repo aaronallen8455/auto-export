@@ -1,0 +1,5 @@
+module Ty6
+  ( D(..)
+  ) where
+
+data family D a

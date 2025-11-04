@@ -1,0 +1,6 @@
+module Data4
+  ( F(..)
+  ) where
+
+data instance F a where
+  D :: () -> F Bool

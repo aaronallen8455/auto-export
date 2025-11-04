@@ -1,0 +1,6 @@
+module Ty6
+  (
+  ) where
+
+!EXPORT
+data family D a
