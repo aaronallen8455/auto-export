@@ -88,3 +88,7 @@ executable Var4
 executable Var5
     import: attrs
     main-is: Var5.hs
+
+executable Var6
+    import: attrs
+    main-is: Var6.hs

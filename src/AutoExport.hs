@@ -144,7 +144,8 @@ addExports :: [Ghc.IE Ghc.GhcPs] -> [Ghc.LIE Ghc.GhcPs] -> [Ghc.LIE Ghc.GhcPs]
 addExports [] lies = lies
 addExports newIEs lies = liesWithComma ++ newIEsWithCommas
   where
-    existingNames = Set.fromList $ Ghc.ieName . Ghc.unLoc <$> lies
+    existingNames = Set.fromList $
+      (listToMaybe . Ghc.ieNames . Ghc.unLoc) `mapMaybe` lies
     iesToAdd = filter ((`Set.notMember` existingNames) . Ghc.ieName) newIEs
     addComma (Ghc.L l ie) = Ghc.L (EP.addComma l) ie
     liesWithComma = case reverse lies of

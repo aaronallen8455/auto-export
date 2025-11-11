@@ -1,4 +1,4 @@
-module Var6 () where
+module Var6 (module X) where
 
 !EXPORT
 a # b = a + b
