@@ -124,7 +124,6 @@ modifyModule
   -> FilePath
   -> IO ()
 modifyModule parsedMod usesCpp newIEs filePath = do
-  putStrLn . Ghc.showSDocUnsafe $ Ghc.ppr newIEs
   let ast = EP.makeDeltaAst parsedMod
       addIEs m = m
           { Ghc.hsmodExports = fmap (addExports newIEs) <$> Ghc.hsmodExports m }
@@ -137,7 +136,7 @@ modifyModule parsedMod usesCpp newIEs filePath = do
         | usesCpp =
             reverse . ('\n' :) . dropWhile (== '\n') . reverse
         | otherwise = id
-      printed = removeTrailingNewlines $ EP.exactPrint updatedMod
+      !printed = removeTrailingNewlines $ EP.exactPrint updatedMod
   writeFile filePath printed
 
 addExports :: [Ghc.IE Ghc.GhcPs] -> [Ghc.LIE Ghc.GhcPs] -> [Ghc.LIE Ghc.GhcPs]
