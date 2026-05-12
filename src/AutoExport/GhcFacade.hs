@@ -38,8 +38,6 @@ import           GHC.Utils.Outputable as Ghc
 import           GHC.Utils.Error as Ghc
 #if MIN_VERSION_ghc(9,8,0)
 import           GHC.Driver.DynFlags as Ghc
-#else
-import           GHC.Driver.Session as Ghc
 #endif
 
 import qualified Language.Haskell.GHC.ExactPrint as EP
@@ -63,13 +61,6 @@ ieThingAllAnn =
         , Ghc.AddEpAnn Ghc.AnnCloseP EP.d0 ]
       Ghc.emptyComments
   )
-#else
-  Ghc.EpAnn
-    (Ghc.Anchor Ghc.placeholderRealSpan EP.m0)
-    [ Ghc.AddEpAnn Ghc.AnnOpenP EP.d0
-      , Ghc.AddEpAnn Ghc.AnnDotdot EP.d0
-      , Ghc.AddEpAnn Ghc.AnnCloseP EP.d0 ]
-    Ghc.emptyComments
 #endif
 
 ieTypeAnn :: Ghc.XIEType Ghc.GhcPs
@@ -111,7 +102,7 @@ anchorD1, anchorD0
   :: Ghc.NoAnn ann => Ghc.EpAnn ann
 anchorD1 = EP.noAnnSrcSpanDP1
 anchorD0 = EP.noAnnSrcSpanDP0
-#elif MIN_VERSION_ghc(9,6,0)
+#elif MIN_VERSION_ghc(9,8,0)
   :: Monoid ann => Ghc.SrcAnn ann
 
 -- blarg
@@ -143,8 +134,6 @@ ieVar name =
     Ghc.noAnn
 #elif MIN_VERSION_ghc(9,8,0)
     Nothing
-#else
-    Ghc.noExtField
 #endif
     name
 #if MIN_VERSION_ghc(9,10,0)
@@ -158,8 +147,6 @@ ieThingAbs name =
     Ghc.noAnn
 #elif MIN_VERSION_ghc(9,8,0)
     (Nothing, Ghc.noAnn)
-#else
-    Ghc.noAnn
 #endif
     name
 #if MIN_VERSION_ghc(9,10,0)

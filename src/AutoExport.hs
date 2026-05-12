@@ -242,6 +242,7 @@ mkIE = \case
             name
       | otherwise = Ghc.L loc name
 
+    isTypeData :: Ghc.TyClDecl Ghc.GhcPs -> Bool
     isTypeData = \case
       Ghc.DataDecl { Ghc.tcdDataDefn = defn } ->
         Ghc.isTypeDataDefnCons $ Ghc.dd_cons defn
